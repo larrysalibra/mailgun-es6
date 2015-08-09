@@ -1,6 +1,6 @@
 #mailgun-es6
 
-The goal of this was to create an up-to-date library that interacts with the Mailgun API using only native JS modules.  It uses ES6 Classes and other features which requires it to be ran with the --harmony flag on node or with iojs.  When they merge this shouldn't be an issue. While all of the code is functional, I would not consider this stable until the test suite is complete. mailgun-es6 MIT licensed.
+The goal of this is to create an up-to-date library that interacts with the Mailgun API using only native JS modules.  It uses ES6 Classes and other features which requires it to be ran with the --harmony flag on node or with iojs.  When they merge this shouldn't be an issue. While all of the code is functional, I would not consider this stable until the test suite is complete. mailgun-es6 is MIT licensed.
 
 ## Installation
 
@@ -125,7 +125,7 @@ promise(MailGun_Response, Rejection_Message)
 
 This function will respond with the current SMTP credentials for the specified domain. If no domain is passed, it will return the domain set at object creation. This does not respond with the passwords. This only responds with a list of available logins.  
 
-#### Add SMTP Credentials - [POST /domains\[<domain\]/credentials](https://documentation.mailgun.com/api-domains.html#domains)
+#### Add SMTP Credentials - [POST /domains\[domain\]/credentials](https://documentation.mailgun.com/api-domains.html#domains)
 ```js
 mailGun.addSmtpUser(username, password[, domain]);
 ```
@@ -136,7 +136,7 @@ promise(MailGun_Response, Rejection_Message)
 
 This function adds a SMTP user to the account. SMTP users are not needed unless you're implementing a SMTP connection.
 
-#### Update SMTP Credentials - [PUT /domains\[<domain\]/credentials/\[login\](https://documentation.mailgun.com/api-domains.html#domains)
+#### Update SMTP Credentials - [PUT /domains\[domain\]/credentials/\[login\]](https://documentation.mailgun.com/api-domains.html#domains)
 ```js
 mailGun.updateSmtpUser(username, password[, domain]);
 ```
@@ -147,7 +147,7 @@ promise(MailGun_Response, Rejection_Message)
 
 This function updates a current SMTP user for a domain.  This will not 'upsert' a user. Also, Mailgun has limited changing only the password.  To change the username, delete the target and create a new one.
 
-#### Delete SMTP Credentials - [DELETE /domains\[<domain\]/credentials/\[login\]](https://documentation.mailgun.com/api-domains.html#domains)
+#### Delete SMTP Credentials - [DELETE /domains\[domain\]/credentials/\[login\]](https://documentation.mailgun.com/api-domains.html#domains)
 ```js
 mailGun.deleteSmtpUser(username, password[, domain]);
 ```
@@ -159,7 +159,7 @@ promise(MailGun_Response, Rejection_Message)
 This function removes a current SMTP user.
 
 
-#### Get Connection Settings - [GET /domains/\]domain\]/connection](https://documentation.mailgun.com/api-domains.html#domains)
+#### Get Connection Settings - [GET /domains/\[domain\]/connection](https://documentation.mailgun.com/api-domains.html#domains)
 ```js
 mailGun.getConnectionSettings([domain]);
 ```
@@ -272,7 +272,7 @@ promise(MailGun_Response, Rejection_Message)
 
 This function removes email address from the bounce list.  Be careful when doing this. There may be a good reason why the email in on this list.
 
-#### Get Unsubscribes - [GET /\[domain\]/unsubscribes/\[addres\]>](https://documentation.mailgun.com/api-suppressions.html#unsubscribes)
+#### Get Unsubscribes - [GET /\[domain\]/unsubscribes/\[addres\]](https://documentation.mailgun.com/api-suppressions.html#unsubscribes)
 ```js
 mailGun.getUnsubscribes([limit, address, domain]);
 ```
@@ -309,7 +309,7 @@ promise(MailGun_Response, Rejection_Message)
 
 This function removes an email from the domain unsubscribe list. Be careful, there may be a good reason why the email in on this list.
 
-#### Get Complaints - [GET /\[domain\]/complaints/\[addres\]>](https://documentation.mailgun.com/api-suppressions.html#view-all-complaints)
+#### Get Complaints - [GET /\[domain\]/complaints/\[addres\]](https://documentation.mailgun.com/api-suppressions.html#view-all-complaints)
 ```js
 mailGun.getComplaints([limit, address, domain]);
 ```
@@ -346,7 +346,7 @@ promise(MailGun_Response, Rejection_Message)
 This function removes an email from the domain complaint list. Be careful, there may be a good reason why the email in on this list.
 
 ### Routes
-#### Get Routes - [GET /routes/\[id\]>](https://documentation.mailgun.com/api-routes.html#actions)
+#### Get Routes - [GET /routes/\[id\]](https://documentation.mailgun.com/api-routes.html#actions)
 ```js
 mailGun.getRoutes([id, limit, skip]);
 ```
