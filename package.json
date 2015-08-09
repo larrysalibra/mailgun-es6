@@ -1,5 +1,5 @@
 {
-  "name": "mailgun-iojs",
+  "name": "mailgun-es6",
   "version": "0.0.1",
   "description": "A mailgun module for iojs/ES6 compatible situations using only native libraries",
   "main": "index.js",
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com:gpit2286/mailgun-es6.git"
+    "url": "git+ssh://git@github.com/gpit2286/mailgun-es6.git"
   },
   "keywords": [
     "mailgun",
@@ -25,5 +25,8 @@
   "devDependencies": {
     "chai": "^3.2.0",
     "mocha": "^2.2.5"
+  },
+  "directories": {
+    "test": "test"
   }
 }
