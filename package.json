@@ -1,0 +1,29 @@
+{
+  "name": "mailgun-iojs",
+  "version": "0.0.1",
+  "description": "A mailgun module for iojs/ES6 compatible situations using only native libraries",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha --reporter spec"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com:gpit2286/mailgun-es6.git"
+  },
+  "keywords": [
+    "mailgun",
+    "node",
+    "es6",
+    "iojs"
+  ],
+  "author": "Kyle Baldwin <kwb@mail.sfsu.edu> (http://kylebaldw.in)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/gpit2286/mailgun-es6/issues"
+  },
+  "homepage": "https://github.com/gpit2286/mailgun-es6#readme",
+  "devDependencies": {
+    "chai": "^3.2.0",
+    "mocha": "^2.2.5"
+  }
+}
