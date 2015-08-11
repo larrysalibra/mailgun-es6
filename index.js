@@ -1203,6 +1203,456 @@ class MailGun {
     }.bind(this));
   }
 
+  getWebhooks(id, domain) {
+    //domain or ID of campaign
+    return new Promise(function(resolve, reject) {
+      var path = '';
+      //Check to see if the domain was passes as limit or skip.
+      if (/\W/.test(id) === true) {
+        domain = id;
+        id = undefined;
+      }
+
+      //Set domainName first
+      domain = this._determineDomain(domain, reject);
+
+      path = `/domains/${domain}/webhooks`;
+      if (typeof id != 'undefined') {
+        path += '/' + id;
+      }
+
+      var httpsOptions = this._genHttpsOptions(path, 'GET');
+
+      //Make the connection
+      var req = https.request(httpsOptions, function(res) {
+        this._handleHttpsResponse(res, resolve, reject);
+      }.bind(this)); //End of request. I've bound this so I can use _handleHttpsResponse
+
+      req.end();
+
+      req.on('error', function(e) {
+        reject(`getWebhooks() Connection Problem. ${e}`);
+      });
+    }.bind(this));
+  }
+
+  addWebhooks(id, url, domain) {
+    return new Promise(function(resolve, reject) {
+      if (typeof id == 'undefined') {
+        return reject('You must specify an id for the webhook');
+      }
+      if (typeof url == 'undefined') {
+        return reject('You must specify a url for the webhook');
+      }
+
+      domain = this._determineDomain(domain, reject);
+
+      //Start new Form
+      var form = new FormData();
+
+      //Generate new HTTPS options
+      var httpsOptions = this._genHttpsOptions(`/domains/${domain}/webhooks`, 'POST');
+      form.addData('id', id);
+      form.addData('url', url);
+
+      //Make the connection
+      var req = https.request(httpsOptions, function(res) {
+        this._handleHttpsResponse(res, resolve, reject);
+      }.bind(this)); //End of request. I've bound this so I can use _handleHttpsResponse
+
+      //Set content Header with dynamic boundary
+      req.setHeader('Content-Type', form.contentType);
+
+      //Send data to server.
+      //No req.end() as then ed of the pipe will automatically close it
+      form.submitTo(req);
+
+      req.on('error', function(e) {
+        reject(`addWebhooks() Connection Problem. ${e}`);
+      });
+    }.bind(this)); //End of promise. I've bound this so I can use _genHttpsOptions
+  }
+
+  updateWebhooks(id, url, domain) {
+    return new Promise(function(resolve, reject) {
+      if (typeof id !== 'undefined') {
+        return reject('An ID must be supplied. If trying to create a webhook, use addWebhooks()');
+      }
+
+      if (typeof url == 'undefined') {
+        return reject('If you don\'t pass a url, what are you going to update?');
+      }
+
+      domain = this._determineDomain(domain, reject);
+
+      //Generate new HTTPS options
+      var httpsOptions = this._genHttpsOptions(`/domains/${domain}/webhooks/${id}`, 'PUT');
+      //Start new Form
+      var form = new FormData();
+      form.addData('url', url);
+
+      //Make the connection
+      var req = https.request(httpsOptions, function(res) {
+        this._handleHttpsResponse(res, resolve, reject);
+      }.bind(this)); //End of request. I've bound this so I can use _handleHttpsResponse
+
+      //Set content Header with dynamic boundary
+      req.setHeader('Content-Type', form.contentType);
+
+      //Send data to server.
+      //No req.end() as then ed of the pipe will automatically close it
+      form.submitTo(req);
+
+      req.on('error', function(e) {
+        reject(`updateWebhooks() Connection Problem. ${e}`);
+      });
+    }.bind(this));
+  }
+
+  deleteWebhooks(idToDelete, domain) {
+    return new Promise(function(resolve, reject) {
+      if (typeof idToDelete == 'undefined') {
+        return reject('A webhook needs to be passed to this function');
+      }
+      domain = this._determineDomain(domain, reject);
+
+      var httpsOptions = this._genHttpsOptions(`/domains/${domain}/webhooks/${idToDelete}`, 'DELETE');
+
+      //Make the connection
+      var req = https.request(httpsOptions, function(res) {
+        this._handleHttpsResponse(res, resolve, reject);
+      }.bind(this)); //End of request. I've bound this so I can use _handleHttpsResponse
+
+      req.end();
+
+      req.on('error', function(e) {
+        reject(`deleteWebhooks() Connection Problem. ${e}`);
+      });
+
+    }.bind(this));
+  }
+
+  getMailingLists(listName) {
+    //TODO: Integrate limit and skip
+    return new Promise(function(resolve, reject) {
+      var path = `/lists`;
+      if (typeof listName != 'undefined') {
+        path += '/' + listName;
+      }
+
+      var httpsOptions = this._genHttpsOptions(path, 'GET');
+
+      //Make the connection
+      var req = https.request(httpsOptions, function(res) {
+        this._handleHttpsResponse(res, resolve, reject);
+      }.bind(this)); //End of request. I've bound this so I can use _handleHttpsResponse
+
+      req.end();
+
+      req.on('error', function(e) {
+        reject(`getMailingLists() Connection Problem. ${e}`);
+      });
+    }.bind(this));
+  }
+
+  addMailingLists(address, name, description, accessLevel) {
+    return new Promise(function(resolve, reject) {
+      if (typeof address == 'undefined') {
+        return reject('You must specify an address for the mailing list');
+      }
+      if (typeof name == 'undefined') {
+        return reject('You must specify a name for the mailing list');
+      }
+      if (typeof description == 'undefined') {
+        return reject('You must specify a description for the mailing list');
+      }
+      if (typeof accessLevel == 'undefined') {
+        return reject('You must specify an access level for the mailing list');
+      }
+
+      //Start new Form
+      var form = new FormData();
+
+      //Generate new HTTPS options
+      var httpsOptions = this._genHttpsOptions(`/lists`, 'POST');
+      form.addData('address', address);
+      form.addData('name', name);
+      form.addData('description', description);
+      form.addData('access_level', accessLevel);
+
+      //Make the connection
+      var req = https.request(httpsOptions, function(res) {
+        this._handleHttpsResponse(res, resolve, reject);
+      }.bind(this)); //End of request. I've bound this so I can use _handleHttpsResponse
+
+      //Set content Header with dynamic boundary
+      req.setHeader('Content-Type', form.contentType);
+
+      //Send data to server.
+      //No req.end() as then ed of the pipe will automatically close it
+      form.submitTo(req);
+
+      req.on('error', function(e) {
+        reject(`addMailingLists() Connection Problem. ${e}`);
+      });
+    }.bind(this)); //End of promise. I've bound this so I can use _genHttpsOptions
+  }
+
+  updateMailingLists(address, name, description, accessLevel) {
+    return new Promise(function(resolve, reject) {
+      if (typeof address !== 'undefined') {
+        return reject('You must specify a mailing list to update.');
+      }
+
+      //Generate new HTTPS options
+      var httpsOptions = this._genHttpsOptions(`/lists/${address}`, 'PUT');
+      //Start new Form
+      var form = new FormData();
+      if (name !== '' && typeof name != 'undefined') {
+        form.addData('name', name);
+      }
+      if (description !== '' && typeof description != 'undefined') {
+        form.addData('description', description);
+      }
+      if (accessLevel !== '' && typeof accessLevel != 'undefined') {
+        form.addData('access_level', accessLevel);
+      }
+
+      //Make the connection
+      var req = https.request(httpsOptions, function(res) {
+        this._handleHttpsResponse(res, resolve, reject);
+      }.bind(this)); //End of request. I've bound this so I can use _handleHttpsResponse
+
+      //Set content Header with dynamic boundary
+      req.setHeader('Content-Type', form.contentType);
+
+      //Send data to server.
+      //No req.end() as then ed of the pipe will automatically close it
+      form.submitTo(req);
+
+      req.on('error', function(e) {
+        reject(`updateMailingLists() Connection Problem. ${e}`);
+      });
+    }.bind(this));
+  }
+
+  deleteMailingLists(idToDelete) {
+    return new Promise(function(resolve, reject) {
+      if (typeof idToDelete == 'undefined') {
+        return reject('An email needs to be passed to this function');
+      }
+
+      var httpsOptions = this._genHttpsOptions(`/lists/${idToDelete}`, 'DELETE');
+
+      //Make the connection
+      var req = https.request(httpsOptions, function(res) {
+        this._handleHttpsResponse(res, resolve, reject);
+      }.bind(this)); //End of request. I've bound this so I can use _handleHttpsResponse
+
+      req.end();
+
+      req.on('error', function(e) {
+        reject(`deleteMailingLists() Connection Problem. ${e}`);
+      });
+
+    }.bind(this));
+  }
+
+  getMailingListsMembers(listName, memberName) {
+    //TODO: Integrate subscribed, limit and skip
+    return new Promise(function(resolve, reject) {
+      if (typeof listName == 'undefined') {
+        return reject('You must pass a listname to this function.');
+      }
+      var path = `/lists/${listName}/members`;
+      if (typeof memberName != 'undefined') {
+        path += '/' + memberName;
+      }
+      var httpsOptions = this._genHttpsOptions(path, 'GET');
+
+      //Make the connection
+      var req = https.request(httpsOptions, function(res) {
+        this._handleHttpsResponse(res, resolve, reject);
+      }.bind(this)); //End of request. I've bound this so I can use _handleHttpsResponse
+
+      req.end();
+
+      req.on('error', function(e) {
+        reject(`getMailingListsMembers() Connection Problem. ${e}`);
+      });
+    }.bind(this));
+  }
+
+  addMailingListsMembers(listAddress, options) {
+    return new Promise(function(resolve, reject) {
+      if (typeof listAddress == 'undefined') {
+        return reject('You must specify an listAddress for the mailing list');
+      }
+
+      //Generate new HTTPS options
+      var httpsOptions = this._genHttpsOptions(`/lists/${listAddress}/members`, 'POST');
+
+      //Start new Form
+      var form = new FormData();
+
+      if (typeof options != 'undefined' && Object.keys(options).length !== 0) {
+        Object.keys(options).forEach(function(k) {
+          form.addData(k, options[k].toString());
+        });
+      }
+
+      //Make the connection
+      var req = https.request(httpsOptions, function(res) {
+        this._handleHttpsResponse(res, resolve, reject);
+      }.bind(this)); //End of request. I've bound this so I can use _handleHttpsResponse
+
+      //Set content Header with dynamic boundary
+      req.setHeader('Content-Type', form.contentType);
+
+      //Send data to server.
+      //No req.end() as then ed of the pipe will automatically close it
+      form.submitTo(req);
+
+      req.on('error', function(e) {
+        reject(`addMailingListsMembers() Connection Problem. ${e}`);
+      });
+    }.bind(this)); //End of promise. I've bound this so I can use _genHttpsOptions
+  }
+
+  updateMailingListsMembers(memberAddress, listAddress, options) {
+    return new Promise(function(resolve, reject) {
+      if (typeof memberAddress == 'undefined') {
+        return reject('You must pass the address of the member you\re updating.');
+      }
+      if (typeof listAddress == 'undefined') {
+        return reject('You must specify an address for the mailing list');
+      }
+      if (typeof options == 'undefined') {
+        return reject('No updates we passed. Why are you using this function?');
+      }
+
+      //Generate new HTTPS options
+      var httpsOptions = this._genHttpsOptions(`/lists/${listAddress}/members/${memberAddress}`, 'PUT');
+
+      //Start new Form
+      var form = new FormData();
+
+      if (Object.keys(options).length !== 0) {
+        Object.keys(options).forEach(function(k) {
+          form.addData(k, options[k].toString());
+        });
+      }
+
+      //Make the connection
+      var req = https.request(httpsOptions, function(res) {
+        this._handleHttpsResponse(res, resolve, reject);
+      }.bind(this)); //End of request. I've bound this so I can use _handleHttpsResponse
+
+      //Set content Header with dynamic boundary
+      req.setHeader('Content-Type', form.contentType);
+
+      //Send data to server.
+      //No req.end() as then ed of the pipe will automatically close it
+      form.submitTo(req);
+
+      req.on('error', function(e) {
+        reject(`updateMailingListsMembers() Connection Problem. ${e}`);
+      });
+    }.bind(this)); //End of promise. I've bound this so I can use _genHttpsOptions
+  }
+  //TODO: Support for POST /lists/<address>/members.json
+
+  deleteMailingListsMembers(idToDelete, listAddress) {
+    return new Promise(function(resolve, reject) {
+      if (typeof idToDelete == 'undefined') {
+        return reject('An email needs to be passed to this function');
+      }
+      if (typeof listAddress == 'undefined') {
+        return reject('Another email needs to be passed to this function');
+      }
+
+      var httpsOptions = this._genHttpsOptions(`/lists/${listAddress}/members/${idToDelete}`, 'DELETE');
+
+      //Make the connection
+      var req = https.request(httpsOptions, function(res) {
+        this._handleHttpsResponse(res, resolve, reject);
+      }.bind(this)); //End of request. I've bound this so I can use _handleHttpsResponse
+
+      req.end();
+
+      req.on('error', function(e) {
+        reject(`deleteMailingListsMembers() Connection Problem. ${e}`);
+      });
+
+    }.bind(this));
+  }
+
+  getIsValidEmail(emailToCheck) {
+    //domain or ID of campaign
+    return new Promise(function(resolve, reject) {
+      //Check to see if the domain was passes as limit or skip.
+      if (typeof emailToCheck == 'undefined') {
+        return reject('You must specify an email to check.');
+      }
+
+      var httpsOptions = this._genHttpsOptions('/address/validate', 'GET', true);
+
+      var form = new FormData();
+
+      form.addData('address', emailToCheck);
+
+      //Make the connection
+      var req = https.request(httpsOptions, function(res) {
+        this._handleHttpsResponse(res, resolve, reject);
+      }.bind(this)); //End of request. I've bound this so I can use _handleHttpsResponse
+
+      //Set content Header with dynamic boundary
+      req.setHeader('Content-Type', form.contentType);
+
+      //Send data to server.
+      //No req.end() as then ed of the pipe will automatically close it
+      form.submitTo(req);
+
+      req.on('error', function(e) {
+        reject(`getIsValidEmail() Connection Problem. ${e}`);
+      });
+    }.bind(this));
+  }
+
+  getEmailAddressParse(emailToParse, syntaxOnly) {
+    //domain or ID of campaign
+    return new Promise(function(resolve, reject) {
+      //Check to see if the domain was passes as limit or skip.
+      if (typeof emailToParse == 'undefined') {
+        return reject('You must specify an email to check.');
+      }
+
+      syntaxOnly = syntaxOnly || 'true';
+
+      var httpsOptions = this._genHttpsOptions('/address/parse', 'GET', true);
+
+      var form = new FormData();
+
+      form.addData('addresses', emailToParse);
+      form.addData('syntax_only', syntaxOnly.toString());
+
+      //Make the connection
+      var req = https.request(httpsOptions, function(res) {
+        this._handleHttpsResponse(res, resolve, reject);
+      }.bind(this)); //End of request. I've bound this so I can use _handleHttpsResponse
+
+      //Set content Header with dynamic boundary
+      req.setHeader('Content-Type', form.contentType);
+
+      //Send data to server.
+      //No req.end() as then ed of the pipe will automatically close it
+      form.submitTo(req);
+
+      req.on('error', function(e) {
+        reject(`getEmailAddressParse() Connection Problem. ${e}`);
+      });
+    }.bind(this));
+  }
 } //End of Class
 
 
