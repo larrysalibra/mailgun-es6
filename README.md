@@ -1,6 +1,7 @@
 #mailgun-es6
+[![npm version](https://badge.fury.io/js/mailgun-es6.svg)](http://badge.fury.io/js/mailgun-es6) &nbsp; [![Build Status](https://travis-ci.org/gpit2286/mailgun-es6.svg)](https://travis-ci.org/gpit2286/mailgun-es6)
 
-The goal of this is to create an up-to-date library that interacts with the Mailgun API using only native JS modules.  It uses ES6 Classes and other features which requires it to be ran with the --harmony flag on node or with iojs.  When they merge this shouldn't be an issue. While all of the code is functional, I would not consider this stable until the test suite is complete. mailgun-es6 is MIT licensed.
+The goal of this is to create an up-to-date library that interacts with the Mailgun API using only native JS modules.  It uses ES6 Classes and other features which requires it to be ran with the --harmony flag on node or with iojs.  When they merge this shouldn't be an issue. mailgun-es6 is MIT licensed.
 
 ## Installation
 
@@ -90,11 +91,7 @@ This function will either retrieve all domain records for the associated account
 
 #### Add New Domain - [POST /domains](https://documentation.mailgun.com/api-domains.html#domains)
 ```js
-mailGun.addNewDomain('newDomain.com', 'smtpPassword', {
-  spamAction: 'disable' || 'tag',
-  wildCard: true || false
-});
-
+mailGun.addNewDomain('newDomain.com', 'smtpPassword', wildcard, 'spamAction');
 ```
 ##### Returns
 ```js
@@ -149,7 +146,7 @@ This function updates a current SMTP user for a domain.  This will not 'upsert' 
 
 #### Delete SMTP Credentials - [DELETE /domains\[domain\]/credentials/\[login\]](https://documentation.mailgun.com/api-domains.html#domains)
 ```js
-mailGun.deleteSmtpUser(username, password[, domain]);
+mailGun.deleteSmtpUser(username[, domain]);
 ```
 ##### Returns
 ```js
@@ -213,7 +210,7 @@ When a tag is applied to an email set, it is recorded by MailGun.  This function
 ### Events
 #### Retrieving Events - [GET /\[domain\]/events](https://documentation.mailgun.com/api-events.html#events)
 ```js
-mailGun.getEvents([search, domain]);
+mailGun.getEvents([options, domain]);
 ```
 ##### Returns
 ```js
@@ -222,11 +219,9 @@ promise(MailGun_Response, Rejection_Message)
 
 This endpoint is somewhat confusing.  Please re-read all of this twice before sending angry emails or help make it less confusing.  Please first understand the [limits on logging for Mailgun domains](https://documentation.mailgun.com/api-events.html). For Free accounts you will only be able to see the last two days of logs.  For paid accounts, you will be able to see the last 30.  
 
-With that in mind, let us explore the search option.  The same as above, you can either pass the search option as an object or as a string in 'var1=val1' format. I HIGHLY suggest that you use the object as there are some magical things that happen. (e.g., dates get converted to the [correct format](https://documentation.mailgun.com/api-intro.html#date-format)) With that in mind:
+With that in mind, let us explore the search option.  The same as above, you can either pass the search option as an object or as a string in 'var1=val1' format.
 
-* Both 'begin' and 'end' accept either a text date (Jan 1, 2015) or the UNIX time in seconds.  Internally, the function uses new Date().  So any format that Date.parseDate() understands will work.  
-
-* Date ranges only work if you specify (BOTH 'begin' and 'end') OR (either 'begin' or 'end' AND 'ascending')
+** Date ranges only work if you specify (BOTH 'begin' and 'end') OR (either 'begin' or 'end' AND 'ascending') **
 
 In addition to 'begin', 'end', and 'ascending', any field from the [query options](https://documentation.mailgun.com/api-events.html#query-options) can be passed as key/value pairs in the search object.
 
@@ -236,7 +231,7 @@ Currently, this function does not support [event polling](https://documentation.
 
 #### Get Bounces - [GET /\[domain\]/bounces/\[address\]](https://documentation.mailgun.com/api-suppressions.html#bounces)
 ```js
-mailGun.getBounces([limit, address, domain]);
+mailGun.getBounces([search, domain]);
 ```
 ##### Returns
 ```js
@@ -274,7 +269,7 @@ This function removes email address from the bounce list.  Be careful when doing
 
 #### Get Unsubscribes - [GET /\[domain\]/unsubscribes/\[addres\]](https://documentation.mailgun.com/api-suppressions.html#unsubscribes)
 ```js
-mailGun.getUnsubscribes([limit, address, domain]);
+mailGun.getUnsubscribes([search, domain]);
 ```
 ##### Returns
 ```js
@@ -311,7 +306,7 @@ This function removes an email from the domain unsubscribe list. Be careful, the
 
 #### Get Complaints - [GET /\[domain\]/complaints/\[addres\]](https://documentation.mailgun.com/api-suppressions.html#view-all-complaints)
 ```js
-mailGun.getComplaints([limit, address, domain]);
+mailGun.getComplaints([search, domain]);
 ```
 ##### Returns
 ```js
@@ -424,18 +419,18 @@ the campaign id.
 
 #### Add Campaigns - [POST /\[domain\]/campaigns](https://documentation.mailgun.com/api-webhooks.html#webhooks)
 ```js
-mailGun.addCampaigns(id, name[, domain]);
+mailGun.addCampaigns(campaign[, domain]);
 ```
 ##### Returns
 ```js
 promise(MailGun_Response, Rejection_Message)
 ```
 
-This will add a new campaign tag to the server to track.  
+This will add a new campaign tag to the server to track. Campaign should be an object with a 'name' and an 'id.'
 
 #### Update Campaigns - [PUT /\[domain\]/campaigns/\[id\]](https://documentation.mailgun.com/api-campaigns.html)
 ```js
-mailGun.updateCampaigns(id[, name, domain]);
+mailGun.updateCampaigns(id, newData[, domain]);
 ```
 ##### Returns
 ```js
@@ -480,25 +475,25 @@ about the ways you can sort this information. Any key can be passed into the opt
 
 #### Get Webhooks - [GET /domains/\[domain\]/webhooks/\[webhookname\]](https://documentation.mailgun.com/api-webhooks.html#webhooks)
 ```js
-mailGun.getWebhooks([id, domain]);
+mailGun.getWebhooks([hookName, domain]);
 ```
 ##### Returns
 ```js
 promise(MailGun_Response, Rejection_Message)
 ```
 
-This function will return a list of webhooks for specified domain.  ID refers to the event type and is discussed below under Add Webhooks.
+This function will return a list of webhooks for specified domain.  hookName refers to the event type and is discussed below under Add Webhooks.
 
 #### Add Webhooks - [POST /domains/\[domain\]/webhooks](https://documentation.mailgun.com/api-webhooks.html#webhooks)
 ```js
-mailGun.addWebhooks(id, url[, domain]);
+mailGun.addWebhooks(hookName, url[, domain]);
 ```
 ##### Returns
 ```js
 promise(MailGun_Response, Rejection_Message)
 ```
 
-This function creates a webhook for the named domain. 'id' is the name used by Mailgun, but I think that it should really be called 'type' as this is the field that triggers the webhook.  The possible options are below. 'url' refers to the url called by the webhook.
+This function creates a webhook for the named domain. 'hookName' is the name used by Mailgun. They call it 'id' but I think that it should really be called 'type' as this is the field that triggers the webhook.  The possible options are below. 'url' refers to the url called by the webhook.
 
 * bounce
 * deliver
@@ -518,7 +513,7 @@ mailGun.updateWebhooks(id, url[, domain]);
 promise(MailGun_Response, Rejection_Message)
 ```
 
-Since 'id' refers to the hook type, both is and url are required for this function.
+Since 'id' refers to the hook type, both id and url are required for this function.
 
 
 #### Delete Webhooks - [DELETE /domains/\[domain\]/webhooks/\[webhookname\]](https://documentation.mailgun.com/api-webhooks.html#webhooks)
@@ -536,7 +531,7 @@ This function removes a webhook from the domain list.
 
 #### Get Mailing Lists - [GET /lists/\[address\]](https://documentation.mailgun.com/api-mailinglists.html#mailing-lists)
 ```js
-mailGun.getMailingLists([listName]);
+mailGun.getMailLists([listName]);
 ```
 ##### Returns
 ```js
@@ -547,14 +542,14 @@ This function will return a list of mailing lists for all domains.  Currently Ma
 
 #### Add Mailing List - [POST /lists/\[address\]](https://documentation.mailgun.com/api-mailinglists.html#mailing-lists)
 ```js
-mailGun.addMailingLists(address, name, description, accessLevel);
+mailGun.addMailLists(listData);
 ```
 ##### Returns
 ```js
 promise(MailGun_Response, Rejection_Message)
 ```
 
-This function will create a new mailing list.
+This function will create a new mailing list. listData should include:
 
 * address - The email address that you will send email to that will distribute to all members.
 * name - Name of the mailing list
@@ -564,7 +559,7 @@ This function will create a new mailing list.
 
 #### Update Mailing List - [PUT /lists/\[address\]](https://documentation.mailgun.com/api-mailinglists.html#mailing-lists)
 ```js
-mailGun.updateMailingLists(address, name, description, accessLevel);
+mailGun.updateMailLists(addressList, listData);
 ```
 ##### Returns
 ```js
@@ -575,7 +570,7 @@ Updates given mailing list (address).
 
 #### Delete Mailing Address - [DELETE /lists/\[address\]](https://documentation.mailgun.com/api-mailinglists.html#mailing-lists)
 ```js
-mailGun.deleteMailingLists(idToDelete);
+mailGun.deleteMailLists(idToDelete);
 ```
 ##### Returns
 ```js
@@ -587,7 +582,7 @@ This function removes a mailing list.
 
 #### Get Mailing List Members - [GET /lists/\[address\]/members/\[member_address\]](https://documentation.mailgun.com/api-mailinglists.html#mailing-lists)
 ```js
-mailGun.getMailingListsMembers(listName[, memberName]);
+mailGun.getMailListsMembers(listName[, memberName]);
 ```
 ##### Returns
 ```js
@@ -598,35 +593,35 @@ This function allows you to dig deeper into your mail list subscribers.  If a me
 
 #### Add Mailing List Members- [POST /lists/\[address\]/members](https://documentation.mailgun.com/api-mailinglists.html#mailing-lists)
 ```js
-mailGun.addMailingListsMembers(listAddress[, options]);
+mailGun.addMailListsMembers(listAddress, memberObject[, upsert]);
 ```
 ##### Returns
 ```js
 promise(MailGun_Response, Rejection_Message)
 ```
 
-This function will create a new mailing list member.
+This function will create a new mailing list member. Member object can be an object or an array of objects.  These objects shoud include:
 
 * address - The email to add.
 * name - The member name
 * vars - A arbitrary JSON object that holds user data with the record
 * subscribed - yes (default) to add as a mail receiving member.
-* upsert - yes to update member, no to throw error if user already exists (default)
+
 
 #### Update Mailing List Member - [PUT /lists/\[address\]/members/\[member_address\]](https://documentation.mailgun.com/api-mailinglists.html#mailing-lists)
 ```js
-mailGun.updateMailingListsMembers(memberAddress, listAddress[, options]);
+mailGun.updateMailListsMembers(listAddress, memberAddress, memberObject);
 ```
 ##### Returns
 ```js
 promise(MailGun_Response, Rejection_Message)
 ```
 
-Updates given mailing list member (address).
+Updates a single mailing list member (address).
 
 #### Delete Mailing Address Member - [DELETE /lists/\[address\]/members/\[member_address\]](https://documentation.mailgun.com/api-mailinglists.html#mailing-lists)
 ```js
-mailGun.deleteMailingListsMembers(idToDelete, listAddress);
+mailGun.deleteMailListsMembers(listAddress, memberAddress);
 ```
 ##### Returns
 ```js
@@ -639,7 +634,7 @@ This function removes a mailing list member.
 
 #### Check if Email is Valid - [GET /address/vaidate](https://documentation.mailgun.com/api-email-validation.html#email-validation)
 ```js
-mailGun.getIsValidEmail(emailToCheck);
+mailGun.validateEmail(emailToCheck);
 ```
 ##### Returns
 ```js
@@ -651,11 +646,11 @@ This function checks to see if a email appears to be valid.  See Mailgun docs fo
 
 #### Parse Email Address - [GET /address/vaidate](https://documentation.mailgun.com/api-email-validation.html#email-validation)
 ```js
-mailGun.getEmailAddressParse(emailToParse[, syntaxOnly]);
+mailGun.parseEmail(emailToParse[, syntaxOnly]);
 ```
 ##### Returns
 ```js
 promise(MailGun_Response, Rejection_Message)
 ```
 
-This function takes an email address and returns the parts.  For more information, see the Mailgun docs.  This function also uses the Public API key. 
+This function takes an email address and returns the parts.  For more information, see the Mailgun docs.  This function also uses the Public API key.
