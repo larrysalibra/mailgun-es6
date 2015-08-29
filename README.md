@@ -26,7 +26,7 @@ var mailGun = new MailGun({
 #### Sending Messages - [POST /\[domain\]/messages](https://documentation.mailgun.com/api-sending.html#sending)
 ```js
 mailGun.sendEmail({
-  to: 'to@email.com',
+  to: ['to@email.com', 'sally@dally.com', 'bob@noemail.com'],
   from: 'from@email.com',
   subject: 'Email Subject',
   body: 'Email Text'

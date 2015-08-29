@@ -133,7 +133,13 @@ class MailGun {
       form = new FormData();
       //Loop through the Keys
       for (var key in options.formData) {
-        form.addData(key, options.formData[key].toString());
+        if (Array.isArray(options.formData[key]) === true) {
+          options.formData[key].map(function(cV) {
+            form.addData(key, cV.toString());
+          });       // jshint ignore:line
+        } else {
+          form.addData(key, options.formData[key].toString());
+        }
       }
     }
 

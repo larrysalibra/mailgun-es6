@@ -263,6 +263,24 @@ describe('Mailgun', function() {
             throw new Error('This should have resolved the promise.');
           });
       });
+      it('should turn an array of formData into seperate keys', function() {
+        mgServer.post('/' + mgVersion +
+          '/testPath')
+        .reply(200, function(uri, postBody) {
+          return {data: postBody};
+        });
+        return mg._sendRequest('/testPath', 'POST', {
+          formData: {
+            test1: ['qwerty', 'asdfg', 'zxcvb']
+          }
+        })
+        .then(function(res) {
+          res.data.should.contain('qwerty').and.contain('asdfg').and.contain('zxcvb');
+          res.data.match(/test1/g).length.should.equal(3);
+        }, function() {
+          throw new Error('This should have resolved the promise.');
+        });
+      });
       it('should return a promise', function() {
         mgServer.get('/' + mgVersion +
           '/testPath')
