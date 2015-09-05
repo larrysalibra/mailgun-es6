@@ -29,7 +29,11 @@ mailGun.sendEmail({
   to: ['to@email.com', 'sally@dally.com', 'bob@noemail.com'],
   from: 'from@email.com',
   subject: 'Email Subject',
-  body: 'Email Text'
+  body: 'Email Text',
+  attachment: {
+    fType: 'text/plain',
+    fLoc: __dirname + '/LICENSE'
+  }
 }[, domainName]);
 ```
 ##### Returns
@@ -54,6 +58,7 @@ The four required fields are above.  Any valid Mailgun options can be passed her
 | o:tracking-opens	| Toggles opens tracking on a per-message basis. Has higher priority than domain-level setting. Pass yes or no. |
 | h:X-My-Header	| h: prefix followed by an arbitrary value allows to append a custom MIME header to the message (X-My-Header in this case). For example, h:Reply-To to specify Reply-To address. |
 | v:my-var	| v: prefix followed by an arbitrary name allows to attach a custom JSON data to the message. See [Attaching Data to Messages](https://documentation.mailgun.com/user_manual.html#manual-customdata) for more information. |
+| attachment | This will send a file along with your email.  fLoc needs ot be a valid file location. fType should be a valid [MIME type](http://hul.harvard.edu/ois/systems/wax/wax-public-help/mimetypes.htm). |
 
 #### Retrieving Stored Messages - [GET domains/[domain]/messages](https://documentation.mailgun.com/api-sending.html#retrieving-stored-messages)
 ```js

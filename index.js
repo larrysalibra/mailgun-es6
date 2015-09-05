@@ -92,6 +92,37 @@ class MailGun {
   }
 
   /**
+  * Builds a form object and retuns that object with correct form data.
+  * @method _buildFormData
+  * @param {Object} formData Form Data
+  * @return {Object} A formData object with passed form data.
+  * @private
+  */
+  _buildFormData(formData) {
+    var form = new FormData();
+    for (var key in formData) {
+      //If we have an array, add a value fo the same field
+      if (Array.isArray(formData[key]) === true) {
+        formData[key].map(function(cV) {
+          //If there is an object with file type, we need to open a file
+          if (cV.hasOwnProperty('fType') === true) {
+            form.addData(key, cV.fLoc, cV.fType);
+          } else {
+            form.addData(key, cV);
+          }
+        });       // jshint ignore:line
+      } else {
+        if (formData[key].hasOwnProperty('fType') === true) {
+          form.addData(key, formData[key].fLoc, formData[key].fType);
+        } else {
+          form.addData(key, formData[key]);
+        }
+      }
+    }
+    return form;
+  }
+
+  /**
   * Does the actual request and response handling
   * @method _sendRequest
   * @param {String} path The resource to access on Mailgun's API
@@ -130,17 +161,7 @@ class MailGun {
 
     //Check to see if this is a request that needs a form.
     if (options.hasOwnProperty('formData') === true) {
-      form = new FormData();
-      //Loop through the Keys
-      for (var key in options.formData) {
-        if (Array.isArray(options.formData[key]) === true) {
-          options.formData[key].map(function(cV) {
-            form.addData(key, cV.toString());
-          });       // jshint ignore:line
-        } else {
-          form.addData(key, options.formData[key].toString());
-        }
-      }
+      form = this._buildFormData(options.formData);
     }
 
     //Make the request.

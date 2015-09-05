@@ -10,6 +10,8 @@ var mgDomain = 'testDomain.com';
 var should = require('chai').should();
 var expect = require('chai').expect;
 var nock = require('nock');
+var fs = require('fs');
+var stream = require('stream');
 var MailGun = require('../index.js');
 var FormData = require('../lib/formdata.js');
 var mgServer = nock('https://api.mailgun.net');
@@ -205,6 +207,147 @@ describe('Mailgun', function() {
       });
     });
 
+    context('_buildFormData', function() {
+      var mg;
+      beforeEach(function() {
+        mg = new MailGun({
+          privateApi: mgPrivate,
+          domainName: mgDomain
+        });
+      });
+
+      it('should add a single form field when given as an object', function(done) {
+        var result = '';
+        var tmpForm = mg._buildFormData({
+          field1: 'val1'
+        });
+
+        var streamCatch = new stream.Writable();
+        streamCatch.setDefaultEncoding('utf8');
+        streamCatch.write = function(chunk) {
+          result = result + chunk.toString('utf8');
+        };
+        streamCatch.end = function() {
+          tmpForm.dataCount.should.equal(1);
+          result.should.include('val1').and.include('field1');
+          var re = new RegExp(tmpForm._boundary, 'g');
+          result.match(re).length.should.equal(2);
+          done();
+        };
+
+        tmpForm.submitTo(streamCatch);
+      });
+      it('should add multiple form fields given within an object', function(done) {
+        var result = '';
+        var tmpForm = mg._buildFormData({
+          field1: 'val1',
+          field2: 'val2',
+          field3: 'val3'
+        });
+
+        var streamCatch = new stream.Writable();
+        streamCatch.setDefaultEncoding('utf8');
+        streamCatch.write = function(chunk) {
+          result = result + chunk.toString('utf8');
+        };
+        streamCatch.end = function() {
+          tmpForm.dataCount.should.equal(3);
+          result.should.include('val1').and.include('field1');
+          result.should.include('val2').and.include('field2');
+          result.should.include('val3').and.include('field3');
+          var re = new RegExp(tmpForm._boundary, 'g');
+          result.match(re).length.should.equal(4);
+          done();
+        };
+
+        tmpForm.submitTo(streamCatch);
+      });
+      it('should add multiple records of the same form data for array values', function(done) {
+        var result = '';
+        var tmpForm = mg._buildFormData({
+          field1: ['val1', 'val2', 'val3']
+        });
+
+        var streamCatch = new stream.Writable();
+        streamCatch.setDefaultEncoding('utf8');
+        streamCatch.write = function(chunk) {
+          result = result + chunk.toString('utf8');
+        };
+        streamCatch.end = function() {
+          tmpForm.dataCount.should.equal(3);
+          result.should.include('val1').and.include('field1');
+          result.should.include('val2');
+          result.should.include('val3');
+          result.match(/field1/g).length.should.equal(3);
+          var re = new RegExp(tmpForm._boundary, 'g');
+          result.match(re).length.should.equal(4);
+          done();
+        };
+
+        tmpForm.submitTo(streamCatch);
+      });
+      it('should add a file when type is given in the form field', function(done) {
+        var result = '';
+        var tmpForm = mg._buildFormData({
+          fileTest: {
+            fType: 'image/png',
+            fLoc: __dirname + '/img/cat1.png'
+          }
+        });
+        var catBuffer = fs.readFileSync(__dirname + '/img/cat1.png');
+
+        var streamCatch = new stream.Writable();
+        streamCatch.setDefaultEncoding('utf8');
+        streamCatch.write = function(chunk) {
+          result = result + chunk.toString('utf8');
+        };
+        streamCatch.end = function() {
+          tmpForm.dataCount.should.equal(1);
+          result.should.include('image/png').and.include('cat1.png');
+          result.match(/fileTest/g).length.should.equal(1);
+          result.should.include(catBuffer);
+          var re = new RegExp(tmpForm._boundary, 'g');
+          result.match(re).length.should.equal(2);
+          done();
+        };
+
+        tmpForm.submitTo(streamCatch);
+      });
+      it('should add multiple files of the same type with an array', function(done) {
+        var result = '';
+        var tmpForm = mg._buildFormData({
+          fileTest: [{
+            fType: 'image/png',
+            fLoc: __dirname + '/img/cat1.png'
+          },{
+            fType: 'image/jpg',
+            fLoc: __dirname + '/img/cat2.jpg'
+          }]
+        });
+        var catBuffer = fs.readFileSync(__dirname + '/img/cat1.png');
+        var catBuffer2 = fs.readFileSync(__dirname + '/img/cat2.jpg');
+
+        var streamCatch = new stream.Writable();
+        streamCatch.setDefaultEncoding('utf8');
+        streamCatch.write = function(chunk) {
+          result = result + chunk.toString('utf8');
+        };
+        streamCatch.end = function() {
+          tmpForm.dataCount.should.equal(2);
+          result.should.include('image/png').and.include('cat1.png');
+          result.should.include('image/jpg').and.include('cat2.jpg');
+          result.match(/fileTest/g).length.should.equal(2);
+          result.should.include(catBuffer);
+          result.should.include(catBuffer2);
+          var re = new RegExp(tmpForm._boundary, 'g');
+          result.match(re).length.should.equal(3);
+          done();
+        };
+
+        tmpForm.submitTo(streamCatch);
+      });
+    });
+
     context('_sendRequest', function() {
       var mg;
       beforeEach(function() {
@@ -250,6 +393,8 @@ describe('Mailgun', function() {
             throw new Error('This should have resolved the promise.');
           });
       });
+      /*These tests are not in this module anymore, however I am leaving them here
+        to ensure constant functionality. */
       it('should add and send formData if present', function() {
         mgServer.post('/' + mgVersion +
           '/testPath')
