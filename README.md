@@ -1,7 +1,7 @@
 #mailgun-es6
 [![npm version](https://badge.fury.io/js/mailgun-es6.svg)](http://badge.fury.io/js/mailgun-es6) &nbsp; [![Build Status](https://travis-ci.org/gpit2286/mailgun-es6.svg)](https://travis-ci.org/gpit2286/mailgun-es6)
 
-The goal of this is to create an up-to-date library that interacts with the Mailgun API using only native JS modules.  It uses ES6 Classes and other features which requires it to be ran with the --harmony flag on node or with iojs.  When they merge this shouldn't be an issue. mailgun-es6 is MIT licensed.
+The goal of this is to create an up-to-date library that interacts with the Mailgun API using only native JS modules. This uses ES6 --harmony features.  If you are not using node 4.0.0+ please make sure you include the --harmony option. mailgun-es6 is MIT licensed.
 
 ## Installation
 
