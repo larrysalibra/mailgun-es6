@@ -649,7 +649,7 @@ promise(MailGun_Response, Rejection_Message)
 This function checks to see if a email appears to be valid.  See Mailgun docs for what checks it performs.  Also, this function uses the public API key, as opposed to the private one.
 
 
-#### Parse Email Address - [GET /address/vaidate](https://documentation.mailgun.com/api-email-validation.html#email-validation)
+#### Parse Email Address - [GET /address/parse](https://documentation.mailgun.com/api-email-validation.html#email-validation)
 ```js
 mailGun.parseEmail(emailToParse[, syntaxOnly]);
 ```
