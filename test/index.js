@@ -48,11 +48,42 @@ describe('Mailgun', function() {
         fd.addData('test', 'val');
         fd.dataCount.should.equal(1);
       });
-      it('addData should add data to the stream', function() {
-        //TODO: Figure out how to read stream here.
+      it('addData should add data to the stream', function(done) {
+        var result = '';
+        var streamCatch = new stream.Writable();
+        streamCatch.setDefaultEncoding('utf8');
+        streamCatch.write = function(chunk) {
+          result = result + chunk.toString('utf8');
+        };
+        streamCatch.end = function() {
+          fd.dataCount.should.equal(1);
+          result.should.include('testKey').and.include('testVal');
+          var re = new RegExp(fd._boundary, 'g');
+          result.match(re).length.should.equal(1);
+          done();
+        };
+
+        fd.addData('testKey', 'testVal');
+        fd.dataStream.push(null);
+        fd.dataStream.pipe(streamCatch);
       });
-      it('submitTo should stream form data to the writeable stream', function() {
-        //TODO: Figure out how to read stream here
+      it('submitTo should stream form data to the writeable stream', function(done) {
+        var result = '';
+        var streamCatch = new stream.Writable();
+        streamCatch.setDefaultEncoding('utf8');
+        streamCatch.write = function(chunk) {
+          result = result + chunk.toString('utf8');
+        };
+        streamCatch.end = function() {
+          fd.dataCount.should.equal(1);
+          result.should.include('varKey11').and.include('varryVal5');
+          var re = new RegExp(fd._boundary, 'g');
+          result.match(re).length.should.equal(2);
+          done();
+        };
+
+        fd.addData('varKey11', 'varryVal5');
+        fd.submitTo(streamCatch);
       });
     });
 
