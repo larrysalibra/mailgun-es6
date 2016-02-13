@@ -1,5 +1,6 @@
 'use strict';
 var https = require('https');
+var crypto = require('crypto');
 var queryString = require('querystring');
 var FormData = require('./lib/formdata.js');
 
@@ -999,6 +1000,28 @@ class MailGun {
 
     return this._sendRequest('/domains/<>/webhooks/' + hookName, 'DELETE', {
       domain: domain
+    });
+  }
+
+  /**
+  * Verifies that a webhook call was made from mailgun.
+  * @method verifyWebhook
+  * @param timestamp The timestamp from the webhook header
+  * @param token The randomly generated token from webhook header
+  * @param signature The signature from the webhook header
+  * @return {Promise} Promise resolves if request is real. Rejects if possibly false
+  */
+  verifyWebhook(timestamp, token, signature) {
+    var _this = this;
+    return new Promise(function(resolve, reject) {
+      var hmac = crypto.createHmac('sha256', _this.privateApi);
+      hmac.update(timestamp + token);
+      var digest = hmac.digest('hex');
+      if (signature === digest) {
+        resolve(token);
+      } else {
+        reject('Webhook signature and hash do not match.');
+      }
     });
   }
 

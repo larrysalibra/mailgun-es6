@@ -1763,6 +1763,31 @@ describe('Mailgun', function() {
         });
       });
     });
+
+    context('verifyWebhook', function() {
+      it('should resolve the function promise if the hash matches', function() {
+        var timestamp = '1455393598';
+        var token = '7c0dcc76fe941094b27e007057fbece4158505314ac517d030';
+        var signature = 'a6f2f5065bd6d885bdadfa6ef800707f2d363ca98fca0f2687da814467e2a1d5';
+        return mg.verifyWebhook(timestamp, token, signature)
+        .then(function(r) {
+          return expect(r).to.equal(token);
+        }, function() {
+          throw new Error('This promise should have been resolved.');
+        });
+      });
+      it('should reject the promise if the hashes do not match', function() {
+        var timestamp = '1455393598';
+        var token = '7c0dcc76fe941094b27e007057fbece4158505314ac517d030';
+        var signature = 'a6f2f5065bd6d885bdadfa6ef800707f2d363ca98fca0f2687da814467444444';
+        return mg.verifyWebhook(timestamp, token, signature)
+        .then(function() {
+          throw new Error('This promise should have been resolved.');
+        }, function(r) {
+          r.should.equal('Webhook signature and hash do not match.');
+        });
+      });
+    });
   });
 
   describe('Mailing Lists', function() {

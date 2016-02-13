@@ -532,6 +532,22 @@ promise(MailGun_Response, Rejection_Message)
 
 This function removes a webhook from the domain list.
 
+
+#### Verify Webhook - [Webhook Security](https://documentation.mailgun.com/user_manual.html#webhooks)
+```js
+mailGun.verifyWebhook(timestamp, token, signature)
+```
+##### Returns
+```js
+promise(Webhook_Verified, Webhook_Suspicious)
+```
+
+This function verifies a call from Mailgun to your webhook service.  The timestamp,
+token, and signature are located in the headers sent to the webhook service. In
+addition, this also requires you to have your private API key set as the key is
+used in the hashing of the signature.
+
+
 ### Mailing Lists
 
 #### Get Mailing Lists - [GET /lists/\[address\]](https://documentation.mailgun.com/api-mailinglists.html#mailing-lists)
