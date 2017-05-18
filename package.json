@@ -1,5 +1,5 @@
 {
-  "name": "mailgun-es6-inline-text-attachments",
+  "name": "mailgun-es6",
   "version": "1.1.4",
   "description": "A mailgun module for nodejs (4.00+) using only native libraries",
   "main": "index.js",
