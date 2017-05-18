@@ -108,13 +108,17 @@ class MailGun {
           //If there is an object with file type, we need to open a file
           if (cV.hasOwnProperty('fType') === true) {
             form.addData(key, cV.fLoc, cV.fType);
+          } else if (cV.hasOwnProperty('filename') === true ) {
+            form.addData(key, cV.contents, 'text/plain', false, cV.filename);
           } else {
-            form.addData(key, cV);
+-           form.addData(key, cV);
           }
         });
       } else {
         if (formData[key].hasOwnProperty('fType') === true) {
           form.addData(key, formData[key].fLoc, formData[key].fType);
+        } else if (formData[key].hasOwnProperty('filename') === true ) {
+          form.addData(key, formData[key].contents, 'text/plain', false, formData[key].filename);
         } else {
           form.addData(key, formData[key]);
         }
